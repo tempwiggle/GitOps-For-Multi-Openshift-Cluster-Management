@@ -1,35 +1,34 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: core
-  namespace: openshift-gitops
+  name: apps
+  namespace: multicluster-mgmt-argocd
 spec:
   generators:
   - git:
-      repoURL: https://github.com/tommeramber/ArgoCD-GitOps-Helm-Based-Multi-Cluster-Structure.git
+      repoURL: https://github.com/tempwiggle/GitOps-For-Multi-Openshift-Cluster-Management.git
       revision: HEAD
       directories:
-      - path: core/*
-      - path: core/rbac/*
-      - path: core/jobs/*
+      - path: apps/*
+      - path: apps/helm-operators/*
   syncPolicy:
     preserveResourcesOnDeletion: true
   template:
     metadata:
       name: '{{path.basename}}'
     spec:
-      project: core 
+      project: apps
       source:
-        repoURL: https://github.com/tommeramber/ArgoCD-GitOps-Helm-Based-Multi-Cluster-Structure.git
+        repoURL: https://github.com/tempwiggle/ArgoCD-GitOps-Helm-Based-Multi-Cluster-Structure.git
         targetRevision: HEAD
         path: '{{path}}'
         helm:
           valueFiles:
-          - values-dev-ocp.yaml
+          - values-remote-ocp.yaml
       destination:
         server: https://kubernetes.default.svc
       syncPolicy: {}
-      # Optional
+      # Operators
       #        automated: 
       #          prune: true
       #        syncOptions:

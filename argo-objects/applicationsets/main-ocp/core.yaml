@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: core
+  namespace: multicluster-mgmt-argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/tempwiggle/GitOps-For-Multi-Openshift-Cluster-Management.git 
+      revision: HEAD
+      directories:
+      - path: core/*
+      - path: core/rbac/*
+      - path: core/jobs/*
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: core 
+      source:
+        repoURL: https://github.com/tempwiggle/GitOps-For-Multi-Openshift-Cluster-Management.git
+        targetRevision: HEAD
+        path: '{{path}}'
+        helm:
+          valueFiles:
+          - values-main-ocp.yaml
+      destination:
+        server: https://kubernetes.default.svc
+      syncPolicy: {}
+      # Optional
+      #        automated: 
+      #          prune: true
+      #        syncOptions:
+      #        - Replace=true
